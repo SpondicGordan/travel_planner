@@ -14,6 +14,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Travel Plan servis
 builder.Services.AddScoped<ITravelPlanService, TravelPlanServiceImpl>();
 
+// Destination servis
+builder.Services.AddScoped<IDestinationService, DestinationServiceImpl>();
+
+// Activity servis
+builder.Services.AddScoped<IActivityService, ActivityServiceImpl>();
+
+// Expense servis
+builder.Services.AddScoped<IExpenseService, ExpenseServiceImpl>();
+
+// Checklist servis
+builder.Services.AddScoped<IChecklistService, ChecklistServiceImpl>();
+
 // JWT autentikacija
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
