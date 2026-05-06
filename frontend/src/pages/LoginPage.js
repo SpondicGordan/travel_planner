@@ -34,7 +34,7 @@ export default function LoginPage() {
       const user = {
         id: payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
         email: payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
-        role: payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role']
+        role: payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
       };
 
       login(user, data.token);
