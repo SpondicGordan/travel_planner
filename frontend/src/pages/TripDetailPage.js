@@ -11,6 +11,13 @@ import ActivitiesTab from '../components/ActivitiesTab';
 import ExpensesTab from '../components/ExpensesTab';
 import ChecklistTab from '../components/ChecklistTab';
 import { tripService } from '../services/tripService';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import TripPdfReport from '../components/TripPdfReport';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import { destinationService } from '../services/destinationService';
+import { activityService } from '../services/activityService';
+import { expenseService } from '../services/expenseService';
+import { checklistService } from '../services/checklistService';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -27,9 +34,14 @@ export default function TripDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tabValue, setTabValue] = useState(0);
+  const [destinations, setDestinations] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [checklistItems, setChecklistItems] = useState([]);
 
   useEffect(() => {
     loadTrip();
+    loadPdfData();
   }, [id]);
 
   const loadTrip = async () => {
@@ -43,6 +55,23 @@ export default function TripDetailPage() {
       setLoading(false);
     }
   };
+
+  const loadPdfData = async () => {
+  try {
+    const [dest, act, exp, check] = await Promise.all([
+      destinationService.getAll(id),
+      activityService.getAll(id),
+      expenseService.getAll(id),
+      checklistService.getAll(id)
+    ]);
+    setDestinations(dest);
+    setActivities(act);
+    setExpenses(exp);
+    setChecklistItems(check);
+  } catch (err) {
+    console.error('Greška pri učitavanju PDF podataka.');
+  }
+};
 
   if (loading) return (
     <Box>
@@ -66,13 +95,39 @@ export default function TripDetailPage() {
     <Box>
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/dashboard')}
-          sx={{ mb: 2 }}
-        >
-          Nazad
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate('/dashboard')}
+          >
+            Nazad
+          </Button>
+
+          {trip && (
+            <PDFDownloadLink
+              document={
+                <TripPdfReport
+                  trip={trip}
+                  destinations={destinations}
+                  activities={activities}
+                  expenses={expenses}
+                  checklistItems={checklistItems}
+                />
+              }
+              fileName={`${trip.name}-plan.pdf`}
+            >
+              {({ loading }) => (
+                <Button
+                  variant="outlined"
+                  startIcon={<PictureAsPdfIcon />}
+                  disabled={loading}
+                >
+                  {loading ? 'Generišem PDF...' : 'Preuzmi PDF'}
+                </Button>
+              )}
+            </PDFDownloadLink>
+          )}
+        </Box>
 
         <Typography variant="h4" gutterBottom>{trip?.name}</Typography>
         <Typography variant="body1" color="text.secondary" gutterBottom>
