@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Container, Typography, Tabs, Tab, CircularProgress, Alert, Button
+  Box, Container, Typography, Tabs, Tab, CircularProgress, Alert, Button,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, FormControl, InputLabel
 } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Navbar from '../components/Navbar';
 import DestinationsTab from '../components/DestinationsTab';
@@ -18,6 +20,7 @@ import { destinationService } from '../services/destinationService';
 import { activityService } from '../services/activityService';
 import { expenseService } from '../services/expenseService';
 import { checklistService } from '../services/checklistService';
+import { sharingService } from '../services/sharingService';
 
 function TabPanel({ children, value, index }) {
   return (
@@ -38,6 +41,10 @@ export default function TripDetailPage() {
   const [activities, setActivities] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [checklistItems, setChecklistItems] = useState([]);
+  const [openShareDialog, setOpenShareDialog] = useState(false);
+  const [shareLink, setShareLink] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState('');
 
   useEffect(() => {
     loadTrip();
@@ -73,6 +80,20 @@ export default function TripDetailPage() {
   }
 };
 
+  const handleShare = async (accessType) => {
+    try {
+      setShareLoading(true);
+      setShareError('');
+      const share = await sharingService.createShare(parseInt(id), accessType);
+      const link = `${window.location.origin}/shared/${share.token}`;
+      setShareLink(link);
+    } catch (err) {
+      setShareError('Greška pri generisanju linka.');
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
   if (loading) return (
     <Box>
       <Navbar />
@@ -103,6 +124,18 @@ export default function TripDetailPage() {
             Nazad
           </Button>
 
+          <Button
+            variant="outlined"
+            startIcon={<ShareIcon />}
+            onClick={() => {
+              setShareLink('');
+              setShareError('');
+              setOpenShareDialog(true);
+            }}
+          >
+            Podeli
+          </Button>
+
           {trip && (
             <PDFDownloadLink
               document={
@@ -127,6 +160,58 @@ export default function TripDetailPage() {
               )}
             </PDFDownloadLink>
           )}
+          <Dialog open={openShareDialog} onClose={() => setOpenShareDialog(false)} maxWidth="sm" fullWidth>
+            <DialogTitle>Podijeli plan putovanja</DialogTitle>
+            <DialogContent>
+              {shareError && <Alert severity="error" sx={{ mb: 2, mt: 1 }}>{shareError}</Alert>}
+              
+              {!shareLink ? (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    Izaberite tip pristupa za dijeljenje:
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={() => handleShare('VIEW')}
+                      disabled={shareLoading}
+                    >
+                      👁️ Samo pregled
+                    </Button>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={() => handleShare('EDIT')}
+                      disabled={shareLoading}
+                    >
+                      ✏️ Uređivanje
+                    </Button>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Link za dijeljenje:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    value={shareLink}
+                    slotProps={{ input: { readOnly: true } }}
+                    onClick={(e) => e.target.select()}
+                  />
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Kopirajte link i podijelite ga sa drugima.
+                  </Typography>
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenShareDialog(false)}>Zatvori</Button>
+            </DialogActions>
+          </Dialog>
+
+
         </Box>
 
         <Typography variant="h4" gutterBottom>{trip?.name}</Typography>

@@ -8,7 +8,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { destinationService } from '../services/destinationService';
 
-export default function DestinationsTab({ travelPlanId }) {
+export default function DestinationsTab({ travelPlanId, readOnly }) {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -88,9 +88,11 @@ export default function DestinationsTab({ travelPlanId }) {
     <Box>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
-        Dodaj destinaciju
-      </Button>
+      {!readOnly && (
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
+          Dodaj destinaciju
+        </Button>
+      )}
 
       {destinations.length === 0 ? (
         <Typography color="text.secondary">Nema destinacija.</Typography>
@@ -108,10 +110,12 @@ export default function DestinationsTab({ travelPlanId }) {
                 <Typography variant="body2" color="text.secondary">{dest.description}</Typography>
               )}
             </CardContent>
-            <CardActions>
-              <Button size="small" onClick={() => handleOpen(dest)}>Izmeni</Button>
-              <Button size="small" color="error" onClick={() => handleDelete(dest.id)}>Obriši</Button>
-            </CardActions>
+            {!readOnly && (
+              <CardActions>
+                <Button size="small" onClick={() => handleOpen(dest)}>Izmijeni</Button>
+                <Button size="small" color="error" onClick={() => handleDelete(dest.id)}>Obriši</Button>
+              </CardActions>
+            )}
           </Card>
         ))
       )}

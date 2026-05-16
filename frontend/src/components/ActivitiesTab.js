@@ -23,7 +23,7 @@ const STATUS_LABELS = {
   CANCELLED: 'Otkazano'
 };
 
-export default function ActivitiesTab({ travelPlanId }) {
+export default function ActivitiesTab({ travelPlanId, readOnly }) {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -115,9 +115,11 @@ export default function ActivitiesTab({ travelPlanId }) {
     <Box>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
-        Dodaj aktivnost
-      </Button>
+      {!readOnly && (
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
+          Dodaj aktivnost
+        </Button>
+      )}
 
       {activities.length === 0 ? (
         <Typography color="text.secondary">Nema aktivnosti.</Typography>
@@ -139,10 +141,12 @@ export default function ActivitiesTab({ travelPlanId }) {
                   {act.estimatedCost > 0 && <Typography variant="body2">💰 {act.estimatedCost} €</Typography>}
                   {act.description && <Typography variant="body2" color="text.secondary">{act.description}</Typography>}
                 </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={() => handleOpen(act)}>Izmeni</Button>
-                  <Button size="small" color="error" onClick={() => handleDelete(act.id)}>Obriši</Button>
-                </CardActions>
+                {!readOnly && (
+                  <CardActions>
+                    <Button size="small" onClick={() => handleOpen(act)}>Izmijeni</Button>
+                    <Button size="small" color="error" onClick={() => handleDelete(act.id)}>Obriši</Button>
+                  </CardActions>
+                )}
               </Card>
             ))}
           </Box>

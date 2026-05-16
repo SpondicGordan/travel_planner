@@ -18,7 +18,7 @@ const CATEGORY_LABELS = {
   OTHER: 'Ostalo'
 };
 
-export default function ExpensesTab({ travelPlanId }) {
+export default function ExpensesTab({ travelPlanId, readOnly }) {
   const [expenses, setExpenses] = useState([]);
   const [budgetSummary, setBudgetSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -132,9 +132,11 @@ export default function ExpensesTab({ travelPlanId }) {
         </Paper>
       )}
 
-      <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
-        Dodaj trošak
-      </Button>
+      {!readOnly && (
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpen()} sx={{ mb: 2 }}>
+          Dodaj trošak
+        </Button>
+      )}
 
       {expenses.length === 0 ? (
         <Typography color="text.secondary">Nema troškova.</Typography>
@@ -150,10 +152,12 @@ export default function ExpensesTab({ travelPlanId }) {
               <Typography variant="body2">📅 {new Date(exp.date).toLocaleDateString('sr-RS')}</Typography>
               {exp.description && <Typography variant="body2" color="text.secondary">{exp.description}</Typography>}
             </CardContent>
-            <CardActions>
-              <Button size="small" onClick={() => handleOpen(exp)}>Izmeni</Button>
-              <Button size="small" color="error" onClick={() => handleDelete(exp.id)}>Obriši</Button>
-            </CardActions>
+            {!readOnly && (
+              <CardActions>
+                <Button size="small" onClick={() => handleOpen(exp)}>Izmeni</Button>
+                <Button size="small" color="error" onClick={() => handleDelete(exp.id)}>Obriši</Button>
+              </CardActions>
+            )}
           </Card>
         ))
       )}

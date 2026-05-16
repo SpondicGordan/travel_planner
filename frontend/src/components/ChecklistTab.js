@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { checklistService } from '../services/checklistService';
 
-export default function ChecklistTab({ travelPlanId }) {
+export default function ChecklistTab({ travelPlanId, readOnly }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,21 +76,22 @@ export default function ChecklistTab({ travelPlanId }) {
         Završeno: {completed}/{items.length}
       </Typography>
 
-      {/* Dodavanje nove stavke */}
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <TextField
-          fullWidth
-          size="small"
-          label="Nova stavka"
-          value={newItemText}
-          onChange={(e) => setNewItemText(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="npr. Pasoš, karta, punjač..."
-        />
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
-          Dodaj
-        </Button>
-      </Box>
+      {!readOnly && (
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            label="Nova stavka"
+            value={newItemText}
+            onChange={(e) => setNewItemText(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="npr. Pasoš, karta, punjač..."
+          />
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
+            Dodaj
+          </Button>
+        </Box>
+      )}
 
       {items.length === 0 ? (
         <Typography color="text.secondary">Nema stavki na listi.</Typography>
@@ -113,11 +114,13 @@ export default function ChecklistTab({ travelPlanId }) {
                     color: item.isCompleted ? 'text.secondary' : 'text.primary'
                   }}
                 />
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => handleDelete(item.id)} color="error">
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
+                {!readOnly && (
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end" onClick={() => handleDelete(item.id)} color="error">
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                )}
               </ListItem>
             ))}
           </List>
