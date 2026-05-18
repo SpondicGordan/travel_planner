@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceManifest Name="TravelServicePkg"
-                 Version="1.0.0"
+                 Version="1.0.1"
                  xmlns="http://schemas.microsoft.com/2011/01/fabric"
                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -25,10 +25,10 @@
       <ExeHost>
         <Program>TravelService.exe</Program>
         <Arguments></Arguments>
-        <WorkingFolder>Work</WorkingFolder>
+        <WorkingFolder>CodePackage</WorkingFolder>
         <!-- Uncomment to log console output (both stdout and stderr) to one of the
              service's working directories. -->
-        <!-- <ConsoleRedirection FileRetentionCount="5" FileMaxSizeInKb="2048"/> -->
+        <ConsoleRedirection FileRetentionCount="5" FileMaxSizeInKb="2048"/>
       </ExeHost>
     </EntryPoint>
   </CodePackage>
